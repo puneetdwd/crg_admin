@@ -28,9 +28,7 @@
 	
 
     $sql = "select count(distinct email) from checks where check_date >= '".date('Y-m-d')."' ";
-    //echo $sql; exit;
     $result = mysql_query($sql, $link);
-    
     if($result){
         $total_present = mysql_fetch_row($result);
     }else{
@@ -78,7 +76,6 @@
     //echo $sql; exit;
     $result4 = mysql_query($sql4, $link);
    
-    
 $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
         FROM checks 
         LEFT JOIN customers ON checks.client_id = customers.id

@@ -6,6 +6,7 @@
                 <h3>General</h3>
                 <ul class="nav side-menu">
                   <li><a href="index.php"><i class="fa fa-home"></i> Home <!--<span class="fa fa-chevron-down"></span>--></a>
+                   <li><a href="updateLatLong.php"><i class="fa fa-home"></i> Update Lat-Long <!--<span class="fa fa-chevron-down"></span>--></a>
                     <!--<ul class="nav child_menu">
                       <li><a href="index.html">Dashboard</a></li>
                       <li><a href="index2.html">Dashboard2</a></li>
