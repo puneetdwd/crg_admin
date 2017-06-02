@@ -8,6 +8,25 @@
 
     @mysql_select_db('crgv2', $link) or die( "Unable to select database");
 
+   if(isset($_REQUEST['submit'])){
+		//print_r($_REQUEST);die;
+		//echo "UPDATE `checks` SET `check_date`='".$_REQUEST['check_date']."' WHERE check_id='".$_REQUEST['id']."'";die;
+		$Query = "UPDATE `checks` SET `check_date`='".$_REQUEST['check_in']."' WHERE check_id='".$_REQUEST['check_in_id']."'";
+	   $result4 = mysql_query($Query, $link);
+	   
+	   $Query1 = "UPDATE `checks` SET `check_date`='".$_REQUEST['check_out']."' WHERE check_id='".$_REQUEST['check_out_id']."'";
+	   $result12 = mysql_query($Query1, $link);
+	   
+	   if($result12){
+		    echo "<div id=\"successmsg\"> Update Success </div>";
+                echo "<script>setTimeout(\"location.href = 'index.php';\",1400);</script>";
+		   }
+		
+		//print_r($_REQUEST);	die;
+		}
+	
+	
+
     $sql = "select count(distinct email) from checks where check_date >= '".date('Y-m-d')."' ";
     //echo $sql; exit;
     $result = mysql_query($sql, $link);
@@ -58,28 +77,16 @@
              ORDER BY c.check_date desc ";
     //echo $sql; exit;
     $result4 = mysql_query($sql4, $link);
+   
     
-    /*if($result4){
-        
-        while($row_data = mysql_fetch_array($result4))
-        {
-            $lati = $row_data['latitude'];
-            $row_team = $row_data['longitude'];
-            echo $row_player_name;
-            echo $row_team;
-        }
-        $total_checkout = mysql_fetch_row($result4);
-    }else{
-        $total_checkout[0] = 0;
-    }*/
-    
-$sql5 = "Select name,client_id,username,check_date,checks.check_status,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
+$sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
         FROM checks 
         LEFT JOIN customers ON checks.client_id = customers.id
         LEFT JOIN users ON checks.email = users.username 
-        
-        GROUP BY username,employee_name, check_date
-        ORDER BY username asc";
+        WHERE client_id != 0
+        GROUP BY username,check_date
+        ORDER BY check_date DESC";
+		
 
 $result5 = mysql_query($sql5, $link);
 
@@ -88,34 +95,35 @@ $result5 = mysql_query($sql5, $link);
 $data = array();
 $records = array();
 $i=0;
-
+//echo "<pre>";
 if (mysql_num_rows($result5) > 0) {
     while ($row = mysql_fetch_assoc($result5)) {
         
         //echo "<pre>"; print_r($row); exit;
         
-        if ($row['check_status'] == 'in') {
+		
+		if ($row['check_status'] == 'out') {
             
             $records[$i]['name'] = $row['name'];
             $records[$i]['employee_name'] = $row['employee_name'];
             $records[$i]['check_date'] = $row['check_date'];
             $records[$i]['client_id'] = $row['client_id'];
             $records[$i]['email'] = $row['username'];
+		
             //$mail_arr[] = $row['username'].'~'.date('Y-m-d', strtotime($row['check_date']));
-            
-            $records[$i]['in'] = date('H:i', strtotime($row['check_date']));
+            $records[$i]['check_id_out'] = $row['check_id'];
+            $records[$i]['out'] = date('H:i', strtotime($row['check_date']));
             $in = $row['check_date'];
             $email = $row['username'];
             $client_id = $row['client_id'];
             $i++;
         }else{
-            //if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($client_id == $row['client_id']) && ($email == $row['username']) ){
-            if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($email == $row['username']) ){
-                $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
+           if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($client_id == $row['client_id']) && ($email == $row['username']) ){
+                $records[$i-1]['in'] = date('H:i', strtotime($row['check_date']));
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
                 
-                
+                	$records[$i-1]['check_id'] = $row['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -123,58 +131,13 @@ if (mysql_num_rows($result5) > 0) {
                 $min = round($minutes%60);
                 $records[$i-1]['diff'] = date('H:i', mktime(0, $minutes));
                 //$records[$i-1]['diff'] = $hr.":".$min;
-            }
+           }
             
         }
+		
     }
 }
 
-/*if (mysql_num_rows($result5) > 0) {
-    while ($row = mysql_fetch_assoc($result5)) {
-        $date = date('Y-m-d', strtotime($row['check_date']));
-        $data[$date . '~' . $row['client_id']][] = $row;
-    }
-}
-
-//echo "hi <pre>"; print_r($data); exit;
-
-$records = array();
-$c = 0;
-foreach ($data as $k => $record) {
-    $in = "";
-    foreach ($record as $r => $value) {
-        $records[$k][$c]['name'] = $value['name'];
-        $records[$k][$c]['employee_name'] = $value['employee_name'];
-        $records[$k][$c]['check_date'] = $value['check_date'];
-        $records[$k][$c]['client_id'] = $value['client_id'];
-        $records[$k][$c]['email'] = $value['email'];
-        if ($value['check_status'] == 'in') {
-            
-            $records[$k][$c]['in'] = date('H:i', strtotime($value['check_date']));
-            //$records[$k][$c]['out'] = '';
-            $in = $value['check_date'];
-            $email = $value['email'];
-            $client_id = $value['client_id'];
-        } else {
-            $records[$k][$c]['out'] = date('H:i', strtotime($value['check_date']));
-            $datetime1 = strtotime($value['check_date']);
-            $datetime2 = strtotime($in);
-            $interval = abs($datetime2 - $datetime1);
-            $minutes = round($interval / 60);
-            $records[$k][$c]['diff'] = date('H:i', mktime(0, $minutes));
-            if($email == $value['email'] && $client_id == $value['client_id']){
-                $records[$k][$c]['out'] = date('H:i', strtotime($value['check_date']));
-            }else{
-                $records[$k][$c]['out'] = '';
-                $c++;
-            }
-        }
-    }
-}*/
-
-//echo "hi <pre>"; print_r($records); exit;
-    
-    //echo "Here <pre>"; print_r($total_present); exit;
 ?>
 
 <style>
@@ -186,6 +149,9 @@ foreach ($data as $k => $record) {
         padding: 3px;
         box-sizing: border-box;
     }
+.center-button button{ margin:auto; text-align:center;}
+
+
 </style>
 
 <!-- page content -->
@@ -269,6 +235,7 @@ foreach ($data as $k => $record) {
                                     <th>In Time</th>
                                     <th>Out Time</th>
                                     <th>Total Time Spent</th>
+                                     <th>Action</th>
 
                                 </tr>
                             </thead>
@@ -280,6 +247,7 @@ foreach ($data as $k => $record) {
                                     <th>In Time</th>
                                     <th>Out Time</th>
                                     <th>Total Time Spent</th>
+                                    <th>Action</th>
 
                                 </tr>
                             </tfoot>
@@ -304,22 +272,90 @@ foreach ($data as $k => $record) {
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endforeach; */ ?>
-                                <?php for ($i=0; $i < sizeof($records); $i++) { ?>
+                                <?php 
+								
+								/*echo "<pre>";
+								print_r($records);exit;*/
+								for ($i=0; $i < sizeof($records); $i++) { ?>
                                     
                                         <tr>
-                                            <td><?= $records[$i]['employee_name'] ?></td>
+                                            <td><?= $records[$i]['employee_name'] ;?></td>
                                             <td><?= $records[$i]['name'] ?></td>
                                             <td><?= date('d M Y',strtotime($records[$i]['check_date'])) ?></td>
-                                            <td><?= $records[$i]['in'] ?>
-                                                <!--<input type="text" class="form-control" onclick="return enable_box('<?php echo "in_time_".$id; ?>');" onblur="return update_field('in_time',<?php echo $id; ?>);"
+                                            <td><?= $records[$i]['in']  ?>
+                                            
+                                            
+                                            <div id="myModal<?php echo $records[$i]['check_id'];?>" class="modal fade" role="dialog">
+                                                  <div class="modal-dialog">
+                                                
+                                                    <!-- Modal content-->
+                                                    <div class="modal-content">
+                                                      <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                        <h4 class="modal-title">Update Check-In</h4>
+                                                      </div>
+                                                     <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="post">
+                                                     
+                                                     
+                                                     <div class="row" style="text-align:center; margin:10px;">
+                              
+                               <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center; margin:10px;">
+                                    
+                                     <label class="control-label"  for="latitude">Time In  </label>
+                                     <input type="text"  required="required" name="check_in" value="" class="form-control timePicker ">
+                                      <input type="hidden" name="check_in_id" value="<?php echo $records[$i]['check_id'];?>" />
+                                      </div>
+                                      </div>
+                                      
+                                       
+                               <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center; margin:10px;">
+                                    
+                                     <label class="control-label" for="latitude">Time Out  </label>
+                                     <input type="text"  required="required" name="check_in" value="" class="form-control timePicker ">
+                                      <input type="hidden" name="check_in_id" value="<?php echo $records[$i]['check_id'];?>" />
+                                      </div>
+                                      </div>
+                                                     
+                             </div>                        
+                                          <div class="row" style="text-align:center; padding-bottom:10px;">
+                      <div class="form-group">
+                        <div class="">
+                         
+                          <button type="submit" name="submit" value="Submit" class="btn btn-success">Submit</button>
+                        </div>
+                      </div>
+                      </div>           
+                                                      
+                      
+
+                    </form>
+                                                      <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                      </div>
+                                                    </div>
+                                                
+                                                  </div>
+                                                </div>
+                                            
+                                            <!--
+                                                <input type="text" class="form-control" onclick="return enable_box('<?php echo "in_time_".$id; ?>');" onblur="return update_field('in_time',<?php echo $id; ?>);"
                                                                name="in_time_<?php echo $id; ?>" value="<?= $data['in'] ?>" readonly="readonly" />-->
                                             </td>
                                             <td><?= (isset($records[$i]['out']) && !empty($records[$i]['out'])) ? $records[$i]['out'] : "Not Checked Out"; ?>
-                                                <!--<input type="text" class="form-control" onclick="return enable_box('<?php echo "out_time_".$id; ?>');" onblur="return update_field('out_time',<?php echo $id; ?>);"
-                                                               name="out_time_<?php echo $id; ?>" value="<?= (isset($data['out']) && !empty($data['out'])) ? $data['out'] : "Not Checked Out"; ?>" readonly="readonly" />-->
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                               <!-- <input type="text" class="form-control" onclick="return enable_box('<?php echo "out_time_".$id; ?>');" onblur="return update_field('out_time',<?php echo $id; ?>);"
+                                                               name="out_time_<?php echo $id; ?>" value="<?= (isset($records[$i]['out']) && !empty($records[$i]['out'])) ?$records[$i]['out'] : "Not Checked Out"; ?>" readonly="readonly" />-->
                                             </td>
                                             <td><?=  (isset($records[$i]['diff']) && !empty($records[$i]['diff'])) ? $records[$i]['diff'] : "";  ?></td>
-
+                                       <td><button type="button" class="btn btn-info " data-toggle="modal" data-target="#myModal<?php echo $records[$i]['check_id'];?>">Edit</button></td>
                                         </tr>
                                     
                                 <?php } ?>        
@@ -361,3 +397,4 @@ foreach ($data as $k => $record) {
 		  
 </div>
 <!-- /page content -->
+  
