@@ -8,13 +8,12 @@
 
     @mysql_select_db('crgv2', $link) or die( "Unable to select database");
 
-   if(isset($_REQUEST['submit'])){
-		//print_r($_REQUEST);die;
-		//echo "UPDATE `checks` SET `check_date`='".$_REQUEST['check_date']."' WHERE check_id='".$_REQUEST['id']."'";die;
-		$Query = "UPDATE `checks` SET `check_date`='".$_REQUEST['check_in']."' WHERE check_id='".$_REQUEST['check_in_id']."'";
+  	if(isset($_REQUEST['submit'])){
+		
+		$Query = "UPDATE `checks` SET `check_date`='".$_REQUEST['check_in_value']."' WHERE check_id='".$_REQUEST['check_in_id']."'";
 	   $result4 = mysql_query($Query, $link);
 	   
-	   $Query1 = "UPDATE `checks` SET `check_date`='".$_REQUEST['check_out']."' WHERE check_id='".$_REQUEST['check_out_id']."'";
+	   $Query1 = "UPDATE `checks` SET `check_date`='".$_REQUEST['check_out_value']."' WHERE check_id='".$_REQUEST['check_out_id']."'";
 	   $result12 = mysql_query($Query1, $link);
 	   
 	   if($result12){
@@ -22,13 +21,13 @@
                 echo "<script>setTimeout(\"location.href = 'index.php';\",1400);</script>";
 		   }
 		
-		//print_r($_REQUEST);	die;
 		}
 	
 	
 
     $sql = "select count(distinct email) from checks where check_date >= '".date('Y-m-d')."' ";
     $result = mysql_query($sql, $link);
+    
     if($result){
         $total_present = mysql_fetch_row($result);
     }else{
@@ -76,6 +75,7 @@
     //echo $sql; exit;
     $result4 = mysql_query($sql4, $link);
    
+    
 $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
         FROM checks 
         LEFT JOIN customers ON checks.client_id = customers.id
@@ -95,10 +95,7 @@ $i=0;
 //echo "<pre>";
 if (mysql_num_rows($result5) > 0) {
     while ($row = mysql_fetch_assoc($result5)) {
-        
-        //echo "<pre>"; print_r($row); exit;
-        
-		
+       
 		if ($row['check_status'] == 'out') {
             
             $records[$i]['name'] = $row['name'];
@@ -202,27 +199,12 @@ if (mysql_num_rows($result5) > 0) {
                         <ul class="nav navbar-right panel_toolbox">
                             <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                             </li>
-
-                            <!--
-                            <li class="dropdown">
-                              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                              <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Settings 1</a>
-                                </li>
-                                <li><a href="#">Settings 2</a>
-                                </li>
-                              </ul>
-                            </li>
-                            -->
                             <li><a class="close-link"><i class="fa fa-close"></i></a>
                             </li>
                         </ul>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                      <!--<p class="text-muted font-13 m-b-30">
-                        The Buttons extension for DataTables provides a common set of options, API methods and styling to display buttons on a page that will interact with a DataTable. The core library provides the based framework upon which plug-ins can built.
-                      </p>-->
                         <table id="datatable-buttons" class="display table table-striped table-bordered" cellspacing="0" width="100%">
                             <thead>
                                 <tr>
@@ -273,6 +255,8 @@ if (mysql_num_rows($result5) > 0) {
 								
 								/*echo "<pre>";
 								print_r($records);exit;*/
+								//echo "<pre>";
+								//print_r($records);
 								for ($i=0; $i < sizeof($records); $i++) { ?>
                                     
                                         <tr>
@@ -300,7 +284,7 @@ if (mysql_num_rows($result5) > 0) {
                                     <div class="form-group" style="text-align:center; margin:10px;">
                                     
                                      <label class="control-label"  for="latitude">Time In  </label>
-                                     <input type="text"  required="required" name="check_in" value="" class="form-control timePicker ">
+                                     <input type="text"  required="required" name="check_in_value" value="" class="form-control timePicker ">
                                       <input type="hidden" name="check_in_id" value="<?php echo $records[$i]['check_id'];?>" />
                                       </div>
                                       </div>
@@ -310,8 +294,8 @@ if (mysql_num_rows($result5) > 0) {
                                     <div class="form-group" style="text-align:center; margin:10px;">
                                     
                                      <label class="control-label" for="latitude">Time Out  </label>
-                                     <input type="text"  required="required" name="check_in" value="" class="form-control timePicker ">
-                                      <input type="hidden" name="check_in_id" value="<?php echo $records[$i]['check_id'];?>" />
+                                     <input type="text"  required="required" name="check_out_value" value="" class="form-control timePicker ">
+                                      <input type="hidden" name="check_out_id" value="<?php echo $records[$i]['check_id_out'];?>" />
                                       </div>
                                       </div>
                                                      
@@ -394,4 +378,5 @@ if (mysql_num_rows($result5) > 0) {
 		  
 </div>
 <!-- /page content -->
+  
   
