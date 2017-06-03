@@ -7,7 +7,7 @@
     }
     @mysql_select_db('crgv2', $link) or die( "Unable to select database");
 
-  			if(isset($_REQUEST['Update']) && $_REQUEST['Update']=='Update'){
+if(isset($_REQUEST['Update']) && $_REQUEST['Update']=='Update'){
 		//print_r($_REQUEST);die;
 		
 		$Query = "UPDATE `checks` SET `check_date`='".$_REQUEST['check_in_value']."' WHERE check_id='".$_REQUEST['check_in_id']."'";
@@ -29,8 +29,8 @@
 		}
 	
 	
-
-    $sql = "select count(distinct email) from checks where check_date >= '".date('Y-m-d')."' ";
+   
+    $sql = "select count(distinct email) from checks where check_date between '".date('Y-m-d').' 00:00:00'."'  AND '".date('Y-m-d').' 23:59:59'."'";
     $result = mysql_query($sql, $link);
     
     if($result){
@@ -39,7 +39,7 @@
         $total_present[0] = 0;
     }
     
-    $sql1 = "select count(id) from employees where status = 'active'";
+    $sql1 = "select count(id) from users  where is_active = 1";
     $result1 = mysql_query($sql1, $link);
     
     if($result1){
@@ -47,7 +47,8 @@
     }else{
         $total_emp[0] = 0;
     }
-    
+   // echo  $total_emp[0];
+	//echo  $total_present[0];die;
     $total_absent = $total_emp[0] - $total_present[0];
     
     $sql2 = "select count(distinct email) from checks where check_date >= '".date('Y-m-d')."' and check_status = 'in' ";
@@ -80,69 +81,24 @@
     //echo $sql; exit;
     $result4 = mysql_query($sql4, $link);
     if(isset($_REQUEST['data']) && $_REQUEST['data']=='Present'){
-	   
-	    $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
-        FROM checks 
-        LEFT JOIN customers ON checks.client_id = customers.id
-        LEFT JOIN users ON checks.email = users.username 
-        WHERE client_id != 0 AND checks.check_status='in' AND checks.check_date >= '".date('Y-m-d')."' 
-        GROUP BY username,checks.check_date
-        ORDER BY check_date DESC";
-	   
-	   }else if(isset($_REQUEST['data']) && $_REQUEST['data']=='checkOut'){
-	   
-	    $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
-        FROM checks 
-        LEFT JOIN customers ON checks.client_id = customers.id
-        LEFT JOIN users ON checks.email = users.username 
-        WHERE client_id != 0 AND checks.check_status='out' AND checks.check_date >= '".date('Y-m-d')."' 
-        GROUP BY username,checks.check_date
-        ORDER BY check_date DESC";
-	   
-	   }
-	   
-	   else if(isset($_REQUEST['serchByDate']) && $_REQUEST['serchByDate']=='Search'){
-		   //print_r($_REQUEST);die;
-		   $startDate = $_REQUEST['start_date'];
-		   $endDate = $_REQUEST['end_date'].' 23:59:59';
-
-	   
+	   $startDate = date('Y-m-d').' 00:00:00';
+	   $endDate =  date('Y-m-d').' 23:59:59';
 	    $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
         FROM checks 
         LEFT JOIN customers ON checks.client_id = customers.id
         LEFT JOIN users ON checks.email = users.username 
         WHERE client_id != 0 AND checks.check_status='in' AND checks.check_date between '".$startDate."' and '".$endDate."' 
-        GROUP BY username,checks.check_date
-        ORDER BY check_date DESC";
-		//echo  $sql5;die;
-	   
-	   }
-	   else{
-    
-$sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
-        FROM checks 
-        LEFT JOIN customers ON checks.client_id = customers.id
-        LEFT JOIN users ON checks.email = users.username 
-        WHERE client_id != 0 And checks.check_status='in'
         GROUP BY username,check_date
         ORDER BY check_date DESC";
-	   }
-		
-
-$result5 = mysql_query($sql5, $link);
-
-//echo "hi <pre>"; print_r(mysql_fetch_array($result5)); exit;
-
-$data = array();
-$records = array();
-$i=0;
-//echo "<pre>";
-if (mysql_num_rows($result5) > 0) {
-    while ($row = mysql_fetch_assoc($result5)) {
+		$result5 = mysql_query($sql5, $link);
+		$data = array();
+		$records = array();
+		$i=0;
+		if (mysql_num_rows($result5) > 0) {
+			while ($row = mysql_fetch_assoc($result5)) {
 		
 		
 		if(isset($_REQUEST['data'])){
-			
 				$records[$i]['name'] = $row['name'];
 				$records[$i]['employee_name'] = $row['employee_name'];
 				$records[$i]['check_date'] = $row['check_date'];
@@ -165,9 +121,168 @@ if (mysql_num_rows($result5) > 0) {
 								$min = round($minutes%60);
 								$records[$i]['diff'] = date('H:i', mktime(0, $minutes));
 					}
-			}else{
 				
-			 $records[$i]['name'] = $row['name'];
+			$i++;}
+			}
+			
+			}
+	   
+	   }else 
+	   
+ if(isset($_REQUEST['data']) && $_REQUEST['data']=='Absent'){
+	    $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
+        FROM users 
+        LEFT JOIN checks ON users.username  = checks.email
+		LEFT JOIN customers ON checks.client_id = customers.id
+		GROUP BY users.username";
+		//echo $sql5;die;
+		$result5 = mysql_query($sql5, $link);
+		$data = array();
+		$records = array();
+		$i=0;
+		if (mysql_num_rows($result5) > 0) {
+			while ($row = mysql_fetch_assoc($result5)) {
+				//print_r($row);
+				/*$date1 =  date('Y-m-d');
+				$date2 =  date('Y-m-d',strtotime($row['check_date']));
+				echo  $date1 .'======>'.$date2 .'<br>';*/
+				if(date('Y-m-d')== date('Y-m-d',strtotime($row['check_date']))){
+				$records[$i]['name'] = $row['name'];
+						$records[$i]['employee_name'] = $row['employee_name'];
+						$records[$i]['check_date'] = $row['check_date'];
+						$records[$i]['client_id'] = $row['client_id'];
+						$records[$i]['email'] = $row['username'];
+						$records[$i]['in'] = date('H:i', strtotime($row['check_date']));
+						$records[$i]['check_id'] = $row['check_id'];
+						
+							
+					   } else {
+						$records[$i]['name'] = $row['name'];
+						$records[$i]['employee_name'] = $row['employee_name'];
+						$records[$i]['check_date'] = $row['check_date'];
+						$records[$i]['client_id'] = $row['client_id'];
+						$records[$i]['email'] = $row['username'];
+						$records[$i]['in'] = date('H:i', strtotime($row['check_date']));
+						$records[$i]['check_id'] = $row['check_id'];
+						
+						
+							
+					  $i++; 
+						  }
+			  }}//die;
+			   } 
+			  
+			  
+			  
+			  else if(isset($_REQUEST['data']) && $_REQUEST['data']=='checkOut'){
+	   
+	    $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
+        FROM checks 
+        LEFT JOIN customers ON checks.client_id = customers.id
+        LEFT JOIN users ON checks.email = users.username 
+        WHERE client_id != 0 AND checks.check_status='out' AND checks.check_date >= '".date('Y-m-d')."' 
+        GROUP BY username,checks.check_date
+        ORDER BY check_date DESC";
+		$result5 = mysql_query($sql5, $link);
+		$data = array();
+		$records = array();
+		$i=0;
+		if (mysql_num_rows($result5) > 0) {
+			while ($row = mysql_fetch_assoc($result5)) {
+		
+		
+		if(isset($_REQUEST['data'])){
+				$records[$i]['name'] = $row['name'];
+				$records[$i]['employee_name'] = $row['employee_name'];
+				$records[$i]['check_date'] = $row['check_date'];
+				$records[$i]['client_id'] = $row['client_id'];
+				$records[$i]['email'] = $row['username'];
+				$records[$i]['in'] = date('H:i', strtotime($row['check_date']));
+				$records[$i]['check_id'] = $row['check_id'];
+				$in = $row['check_date'];
+				$CheckOutQ= "select * from checks where client_id='".$row['client_id']."' AND check_date >= '".date('Y-m-d',strtotime($row['check_date']))."' AND   check_status='in'";
+				$checkOut1 = mysql_query($CheckOutQ, $link);
+				$CheckOut = mysql_fetch_assoc($checkOut1);
+						if(!empty($CheckOut)){
+								$records[$i]['check_id_out'] = $CheckOut['check_id'];
+								$records[$i]['out'] = date('H:i', strtotime($CheckOut['check_date']));
+								$datetime1 = strtotime($CheckOut['check_date']);
+								$datetime2 = strtotime($in);
+								$interval = abs($datetime2 - $datetime1);
+								$minutes = round($interval / 60);
+								$hr = round($minutes/60);
+								$min = round($minutes%60);
+								$records[$i]['diff'] = date('H:i', mktime(0, $minutes));
+					}
+				
+			$i++;}}}
+	   
+	   }
+	   
+	   else if(isset($_REQUEST['serchByDate']) && $_REQUEST['serchByDate']=='Search'){
+		   //print_r($_REQUEST);die;
+		   $startDate = $_REQUEST['start_date'];
+		   $endDate = $_REQUEST['end_date'].' 23:59:59';
+	   
+	    $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
+        FROM checks 
+        LEFT JOIN customers ON checks.client_id = customers.id
+        LEFT JOIN users ON checks.email = users.username 
+        WHERE client_id != 0 AND checks.check_status='in' AND checks.check_date between '".$startDate."' and '".$endDate."' 
+        GROUP BY username,checks.check_date
+        ORDER BY check_date DESC";
+		$result5 = mysql_query($sql5, $link);
+		$data = array();
+		$records = array();
+		$i=0;
+		if (mysql_num_rows($result5) > 0) {
+			while ($row = mysql_fetch_assoc($result5)) {
+				
+				
+		if(isset($_REQUEST['data'])){
+				$records[$i]['name'] = $row['name'];
+				$records[$i]['employee_name'] = $row['employee_name'];
+				$records[$i]['check_date'] = $row['check_date'];
+				$records[$i]['client_id'] = $row['client_id'];
+				$records[$i]['email'] = $row['username'];
+				$records[$i]['in'] = date('H:i', strtotime($row['check_date']));
+				$records[$i]['check_id'] = $row['check_id'];
+				$in = $row['check_date'];
+				$CheckOutQ= "select * from checks where client_id='".$row['client_id']."' AND check_date >= '".date('Y-m-d',strtotime($row['check_date']))."' AND   check_status='in'";
+				$checkOut1 = mysql_query($CheckOutQ, $link);
+				$CheckOut = mysql_fetch_assoc($checkOut1);
+						if(!empty($CheckOut)){
+								$records[$i]['check_id_out'] = $CheckOut['check_id'];
+								$records[$i]['out'] = date('H:i', strtotime($CheckOut['check_date']));
+								$datetime1 = strtotime($CheckOut['check_date']);
+								$datetime2 = strtotime($in);
+								$interval = abs($datetime2 - $datetime1);
+								$minutes = round($interval / 60);
+								$hr = round($minutes/60);
+								$min = round($minutes%60);
+								$records[$i]['diff'] = date('H:i', mktime(0, $minutes));
+					}
+				
+			$i++;}}}
+	   
+	   }
+	   else{
+    
+$sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.check_id,customers.name, concat(users.`first_name`,' ',users.`last_name`) as employee_name 
+        FROM checks 
+        LEFT JOIN customers ON checks.client_id = customers.id
+        LEFT JOIN users ON checks.email = users.username 
+        WHERE client_id != 0 And checks.check_status='in'
+        GROUP BY username,check_date
+        ORDER BY check_date DESC";
+	//	echo $sql5;die;
+$result5 = mysql_query($sql5, $link);
+$data = array();
+$records = array();
+$i=0;
+if (mysql_num_rows($result5) > 0) {
+    while ($row = mysql_fetch_assoc($result5)) {
+		 $records[$i]['name'] = $row['name'];
             $records[$i]['employee_name'] = $row['employee_name'];
             $records[$i]['check_date'] = $row['check_date'];
             $records[$i]['client_id'] = $row['client_id'];
@@ -187,17 +302,19 @@ if (mysql_num_rows($result5) > 0) {
                 $minutes = round($interval / 60);
                 $hr = round($minutes/60);
                 $min = round($minutes%60);
-                $records[$i]['diff'] = date('H:i', mktime(0, $minutes));
+                $records[$i]['diff'] = date('H:i', mktime(0, $minutes)); 
 				
 				}
-		
-		   
-			}
-				$i++;
-       
-	}
-}
+				
+				$i++;}
 
+	   }
+		
+	   }
+
+//echo "<pre>";
+//print_r($records);
+//die;
 ?>
 
 <style>
@@ -210,8 +327,6 @@ if (mysql_num_rows($result5) > 0) {
         box-sizing: border-box;
     }
 .center-button button{ margin:auto; text-align:center;}
-
-
 
 
 </style>
@@ -232,6 +347,7 @@ if (mysql_num_rows($result5) > 0) {
                 </a>
               </div>
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <a href="index.php?data=Absent">
                 <div class="tile-stats">
                   <div class="icon"><img  class="img-responsive" src="images/emp-absent.png"/></div>
                   <div class="count"><?php echo $total_absent; ?></div>
@@ -239,6 +355,7 @@ if (mysql_num_rows($result5) > 0) {
                   <h4>Absent</h4>
                   <!--<p>Lorem ipsum psdea itgum rixt.</p>-->
                 </div>
+                </a>
               </div>
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
               
@@ -284,9 +401,11 @@ if (mysql_num_rows($result5) > 0) {
                     
                     <div class="x_content">
                     <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#SearchByDate">Search by Date Range</button>
+                    <div id="ReplaceData">
                         <table id="datatable-buttons" class="display table table-striped table-bordered" cellspacing="0" width="100%">
                             <thead>
                                 <tr>
+                                <th style="display:none;">Se No.</th>
                                     <th>Employee Name</th>
                                     <th>Customer</th>
                                     <th>Date</th>
@@ -299,6 +418,7 @@ if (mysql_num_rows($result5) > 0) {
                             </thead>
                             <tfoot id="">
                                 <tr>
+                                    <th  style="display:none;"></th>
                                     <th>Employee Name</th>
                                     <th>Customer</th>
                                     <th>Date</th>
@@ -311,39 +431,25 @@ if (mysql_num_rows($result5) > 0) {
                             </tfoot>
 
                             <tbody>
-                                <?php /* foreach ($records as $record) : ?>
-                                    <?php foreach ($record as $key => $data) : ?>
-                                        <tr>
-                                            <td><?= $data['employee_name'] ?></td>
-                                            <td><?= $data['name'] ?></td>
-                                            <td><?= date('d M Y',strtotime($data['check_date'])) ?></td>
-                                            <td><?= $data['in'] ?>
-                                                <!--<input type="text" class="form-control" onclick="return enable_box('<?php echo "in_time_".$id; ?>');" onblur="return update_field('in_time',<?php echo $id; ?>);"
-                                                               name="in_time_<?php echo $id; ?>" value="<?= $data['in'] ?>" readonly="readonly" />-->
-                                            </td>
-                                            <td><?= (isset($data['out']) && !empty($data['out'])) ? $data['out'] : "Not Checked Out"; ?>
-                                                <!--<input type="text" class="form-control" onclick="return enable_box('<?php echo "out_time_".$id; ?>');" onblur="return update_field('out_time',<?php echo $id; ?>);"
-                                                               name="out_time_<?php echo $id; ?>" value="<?= (isset($data['out']) && !empty($data['out'])) ? $data['out'] : "Not Checked Out"; ?>" readonly="readonly" />-->
-                                            </td>
-                                            <td><?= (isset($data['diff']) && !empty($data['diff'])) ? $data['diff'] : ""; ?></td>
-
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endforeach; */ ?>
-                               
+                                
                                 <?php 
 								
-								/*echo "<pre>";
-								print_r($records);exit;*/
 								//echo "<pre>";
-								//print_r($records);
-								for ($i=0; $i < sizeof($records); $i++) { ?>
+								//print_r($records);exit;
+								$j=1;
+								for ($i=0; $i < sizeof($records); $i++) { 
+								?>
                                     
                                         <tr  <?php if(isset($records[$i]['diff']) && !empty($records[$i]['diff']) && $records[$i]['diff']<8){?>style="background:#F00;" <?php } ?>>
+                                         <td  style="display:none;" ><?= $j ;?></td>
                                             <td ><?= $records[$i]['employee_name'] ;?></td>
                                             <td><?= $records[$i]['name'] ?></td>
-                                            <td><?= date('d M Y',strtotime($records[$i]['check_date'])) ?></td>
-                                            <td><?= $records[$i]['in']  ?>
+                                            <td><?php if(isset($records[$i]['check_date'])){echo date('d M Y',strtotime($records[$i]['check_date']));}{
+												
+												
+												
+												 }?></td>
+                                            <td><?php if(isset($records[$i]['check_date'])){ echo $records[$i]['in']; } ?>
                                             
                                             
                                             
@@ -467,9 +573,10 @@ if (mysql_num_rows($result5) > 0) {
                                                 
                                                   </div>
                                                 </div>
-                                <?php } ?>        
+                                <?php $j++;}  ?>        
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -552,3 +659,4 @@ if (mysql_num_rows($result5) > 0) {
 
   </div>
 </div> 
+
