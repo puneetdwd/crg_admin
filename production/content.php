@@ -80,9 +80,9 @@ $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.ch
         FROM checks 
         LEFT JOIN customers ON checks.client_id = customers.id
         LEFT JOIN users ON checks.email = users.username 
-        WHERE client_id != 0
+        
         GROUP BY username,check_date
-        ORDER BY check_date DESC";
+        ORDER BY username DESC";
 		
 
 $result5 = mysql_query($sql5, $link);
@@ -115,7 +115,8 @@ if (mysql_num_rows($result5) > 0) {
             $client_id = $row['client_id'];
             $i++;
         }else{
-           if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($client_id == $row['client_id']) && ($email == $row['username']) ){
+           //if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($client_id == $row['client_id']) && ($email == $row['username']) ){
+            if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($email == $row['username']) ){
                 $records[$i-1]['in'] = date('H:i', strtotime($row['check_date']));
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
