@@ -1,4 +1,6 @@
-<?php include "check_session.php"; ?>
+<?php 
+error_reporting(0);
+include "check_session.php"; ?>
 
 
 <!DOCTYPE html>
@@ -64,4 +66,19 @@
 		 <?php include"content.php"; ?>
 		  
 		 <?php include "footer.php"; ?>
-           
+            <link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+
+     
+			<script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
+           <script type="text/javascript">
+            $(function () {
+                $('.timePicker').datetimepicker( { format: 'YYYY-MM-DD hh:mm'});
+            }); 
+			
+			 $(function () {
+                $('.DatePicker').datetimepicker( { format: 'YYYY-MM-DD'});
+            });
+                 $(document).ready(function() {
+$('#ActionRemove').hide();
+} );</script>
+          
