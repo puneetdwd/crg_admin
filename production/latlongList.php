@@ -8,6 +8,8 @@
     }
 
     @mysql_select_db('crgv2', $link) or die( "Unable to select database");
+	
+	
    if(isset($_REQUEST['submit']) && $_REQUEST['submit']='Submit'){
 	   $Query = "UPDATE `customers` SET `latitude`='".$_REQUEST['latitude']."',`longitude`='".$_REQUEST['longitude']."' WHERE id='".$_REQUEST['id']."'";
 	   $result4 = mysql_query($Query, $link);
@@ -16,9 +18,7 @@
                 echo "<script>setTimeout(\"location.href = 'updateLatLong.php';\",1400);</script>";
 		   }
 	   }
-    
-  
-
+	   
 $sql = "select count(id) from customers where status='active'";
     $result = mysql_query($sql, $link);
     
@@ -83,7 +83,7 @@ $sqlLatLongUnAviableC = "select count(id) from customers where status='active' A
                   <div class="icon"><img  class="img-responsive" src="images/emp-present.png"/></div>
                   <div class="count"><?php echo $TotalCOustomer[0]; ?></div>
                   <!--<h3>Employees</h3>-->
-                  <h4>Total Lat & Long</h4>
+                  <h4>Clients</h4>
                   <!--<p>Lorem ipsum psdea itgum rixt.</p>-->
                 </div>
               </div>
@@ -93,7 +93,7 @@ $sqlLatLongUnAviableC = "select count(id) from customers where status='active' A
                   <div class="icon"><img  class="img-responsive" src="images/emp-check-in.png"/></div>
                   <div class="count"><?php echo $AvilableTotalLatLongCOustomer[0]; ?></div>
                   <!--<h3>Employees</h3>-->
-                  <h4>Available Lat & Long</h4>
+                  <h4>Location Updated</h4>
                   <!--<p>Lorem ipsum psdea itgum rixt.</p>-->
                 </div>
                 </a>
@@ -104,7 +104,7 @@ $sqlLatLongUnAviableC = "select count(id) from customers where status='active' A
                   <div class="icon"><img  class="img-responsive" src="images/emp-absent.png"/></div>
                   <div class="count"><?php echo $UnAvilableTotalLatLongCOustomer[0]; ?></div>
                   <!--<h3>Employees</h3>-->
-                  <h4>Un Available Lat & Long</h4>
+                  <h4>Location not updated</h4>
                   <!--<p>Lorem ipsum psdea itgum rixt.</p>-->
                 </div>
                 </a>
@@ -214,7 +214,7 @@ $sqlLatLongUnAviableC = "select count(id) from customers where status='active' A
                             <th class="column-title">Customer Name </th>
                             <th class="column-title">Latitude</th>
                             <th class="column-title">Longitude </th>
-                            <th class="column-title">Bill to Name </th>
+                            <th class="column-title">Action</th>
                            
                           </tr>
                         </thead>
