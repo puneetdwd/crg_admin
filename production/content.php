@@ -39,7 +39,7 @@ if(isset($_REQUEST['Update']) && $_REQUEST['Update']=='Update'){
         $total_present[0] = 0;
     }
     
-    $sql1 = "select count(id) from users  where is_active = 1";
+    $sql1 = "select count(id) from employees  where status = 'active'";
     $result1 = mysql_query($sql1, $link);
     
     if($result1){
