@@ -8,6 +8,8 @@
     }
 
     @mysql_select_db('crgv2', $link) or die( "Unable to select database");
+	
+	
    if(isset($_REQUEST['submit']) && $_REQUEST['submit']='Submit'){
 	   $Query = "UPDATE `customers` SET `latitude`='".$_REQUEST['latitude']."',`longitude`='".$_REQUEST['longitude']."' WHERE id='".$_REQUEST['id']."'";
 	   $result4 = mysql_query($Query, $link);
@@ -16,11 +18,48 @@
                 echo "<script>setTimeout(\"location.href = 'updateLatLong.php';\",1400);</script>";
 		   }
 	   }
+	   
+$sql = "select count(id) from customers where status='active'";
+    $result = mysql_query($sql, $link);
     
-    $sql4 = "Select * from customers where status='active' ";
-    $result4 = mysql_query($sql4, $link);
-
-
+    if($result){
+        $TotalCOustomer = mysql_fetch_row($result);
+    }else{
+        $TotalCOustomer[0] = 0;
+    }
+	
+$sqlLatLongAviableC = "select count(id) from customers where status='active' AND latitude <> ''  and longitude <> ''";
+    $resultLatLongAvilableR = mysql_query($sqlLatLongAviableC, $link);
+    
+    if($resultLatLongAvilableR){
+        $AvilableTotalLatLongCOustomer = mysql_fetch_row($resultLatLongAvilableR);
+    }else{
+        $AvilableTotalLatLongCOustomer[0] = 0;
+    }	
+	
+$sqlLatLongUnAviableC = "select count(id) from customers where status='active' AND latitude = ''  and longitude = ''";
+    $resultLatLongUnAvilableR = mysql_query($sqlLatLongUnAviableC, $link);
+    
+    if($resultLatLongUnAvilableR){
+        $UnAvilableTotalLatLongCOustomer = mysql_fetch_row($resultLatLongUnAvilableR);
+    }else{
+        $UnAvilableTotalLatLongCOustomer[0] = 0;
+    }		
+	
+	if(isset($_REQUEST['data'])){
+		if($_REQUEST['data']=='Available'){
+			$condation = "status='active' AND latitude <> ''  and longitude <> ''";
+			}if($_REQUEST['data']=='UnAvailable'){
+		$condation = "status='active'  AND latitude = ''  and longitude = ''";
+			}
+		}else{
+			
+			$condation = "status='active' ";
+			}
+	
+	
+	$sqlTotal = "Select * from customers where " .$condation;
+    $result4 = mysql_query($sqlTotal, $link);
 
 ?>
 
@@ -42,29 +81,33 @@
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><img  class="img-responsive" src="images/emp-present.png"/></div>
-                  <div class="count"><?php echo $total_present[0]; ?></div>
+                  <div class="count"><?php echo $TotalCOustomer[0]; ?></div>
                   <!--<h3>Employees</h3>-->
-                  <h4>Present</h4>
+                  <h4>Clients</h4>
                   <!--<p>Lorem ipsum psdea itgum rixt.</p>-->
                 </div>
               </div>
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
-                <div class="tile-stats">
-                  <div class="icon"><img  class="img-responsive" src="images/emp-absent.png"/></div>
-                  <div class="count"><?php echo $total_absent; ?></div>
-                  <!--<h3>Employees</h3>-->
-                  <h4>Absent</h4>
-                  <!--<p>Lorem ipsum psdea itgum rixt.</p>-->
-                </div>
-              </div>
-              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+              <a href="updateLatLong.php?data=Available">
                 <div class="tile-stats">
                   <div class="icon"><img  class="img-responsive" src="images/emp-check-in.png"/></div>
-                  <div class="count"><?php echo $total_checkin[0]; ?></div>
+                  <div class="count"><?php echo $AvilableTotalLatLongCOustomer[0]; ?></div>
                   <!--<h3>Employees</h3>-->
-                  <h4>Checked In Outside</h4>
+                  <h4>Location Updated</h4>
                   <!--<p>Lorem ipsum psdea itgum rixt.</p>-->
                 </div>
+                </a>
+              </div>
+              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+               <a href="updateLatLong.php?data=UnAvailable">
+                <div class="tile-stats">
+                  <div class="icon"><img  class="img-responsive" src="images/emp-absent.png"/></div>
+                  <div class="count"><?php echo $UnAvilableTotalLatLongCOustomer[0]; ?></div>
+                  <!--<h3>Employees</h3>-->
+                  <h4>Location not updated</h4>
+                  <!--<p>Lorem ipsum psdea itgum rixt.</p>-->
+                </div>
+                </a>
               </div>
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="tile-stats">
@@ -171,7 +214,7 @@
                             <th class="column-title">Customer Name </th>
                             <th class="column-title">Latitude</th>
                             <th class="column-title">Longitude </th>
-                            <th class="column-title">Bill to Name </th>
+                            <th class="column-title">Action</th>
                            
                           </tr>
                         </thead>
@@ -183,7 +226,7 @@
                             <td class=" "><?php echo $row['name']?></td>
                             <td class=" "><?php echo $row['latitude']?> </td>
                             <td class=" "><?php echo $row['longitude']?></td>
-                            <td class=" "><a href="updateLatLong.php?action=Edit&edit_id=<?php echo $row['id']?>">Edit</a></td>
+                            <td class=" "><a class="btn btn-info btn-sm" href="updateLatLong.php?action=Edit&edit_id=<?php echo $row['id']?>">Edit</a></td>
                            
                           </tr>
                           <?php } } ?>
