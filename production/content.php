@@ -87,14 +87,54 @@
         FROM checks 
         LEFT JOIN customers ON checks.client_id = customers.id
         LEFT JOIN users ON checks.email = users.username 
-        WHERE client_id != 0 AND checks.check_status='in' AND checks.check_date between '".$startDate."' and '".$endDate."' 
+        WHERE client_id != 0 AND checks.check_date between '".$startDate."' and '".$endDate."' 
         GROUP BY username,check_date
-        ORDER BY check_date DESC";
+        ORDER BY username DESC";
 		$result5 = mysql_query($sql5, $link);
 		$data = array();
 		$records = array();
 		$i=0;
-		if (mysql_num_rows($result5) > 0) {
+                
+if (mysql_num_rows($result5) > 0) {
+    while ($row = mysql_fetch_assoc($result5)) {
+        
+        //echo "<pre>"; print_r($row); exit;
+        
+        if ($row['check_status'] == 'in') {
+            
+            $records[$i]['name'] = $row['name'];
+            $records[$i]['employee_name'] = $row['employee_name'];
+            $records[$i]['check_date'] = $row['check_date'];
+            $records[$i]['client_id'] = $row['client_id'];
+            $records[$i]['email'] = $row['username'];
+            //$mail_arr[] = $row['username'].'~'.date('Y-m-d', strtotime($row['check_date']));
+            
+            $records[$i]['in'] = date('H:i', strtotime($row['check_date']));
+            $in = $row['check_date'];
+            $email = $row['username'];
+            $client_id = $row['client_id'];
+            $i++;
+        }else{
+            if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($client_id == $row['client_id']) && ($email == $row['username']) ){
+                $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
+                $datetime1 = strtotime($row['check_date']);
+                $datetime2 = strtotime($in);
+                
+                
+                
+                $interval = abs($datetime2 - $datetime1);
+                $minutes = round($interval / 60);
+                $hr = round($minutes/60);
+                $min = round($minutes%60);
+                $records[$i-1]['diff'] = date('H:i', mktime(0, $minutes));
+                //$records[$i-1]['diff'] = $hr.":".$min;
+            }
+            
+        }
+    }
+}
+                
+		/*if (mysql_num_rows($result5) > 0) {
 			while ($row = mysql_fetch_assoc($result5)) {
 		
 		
@@ -125,7 +165,7 @@
 			$i++;}
 			}
 			
-			}
+			}*/
 	   
 	   }else 
 	   
@@ -134,18 +174,53 @@
         FROM users 
         LEFT JOIN checks ON users.username  = checks.email
 		LEFT JOIN customers ON checks.client_id = customers.id
-		GROUP BY users.username";
+		GROUP BY users.username
+                ORDER BY username DESC";
 		//echo $sql5;die;
 		$result5 = mysql_query($sql5, $link);
 		$data = array();
 		$records = array();
 		$i=0;
-		if (mysql_num_rows($result5) > 0) {
+if (mysql_num_rows($result5) > 0) {
+    while ($row = mysql_fetch_assoc($result5)) {
+        
+        //echo "<pre>"; print_r($row); exit;
+        
+        if ($row['check_status'] == 'in') {
+            
+            $records[$i]['name'] = $row['name'];
+            $records[$i]['employee_name'] = $row['employee_name'];
+            $records[$i]['check_date'] = $row['check_date'];
+            $records[$i]['client_id'] = $row['client_id'];
+            $records[$i]['email'] = $row['username'];
+            //$mail_arr[] = $row['username'].'~'.date('Y-m-d', strtotime($row['check_date']));
+            
+            $records[$i]['in'] = date('H:i', strtotime($row['check_date']));
+            $in = $row['check_date'];
+            $email = $row['username'];
+            $client_id = $row['client_id'];
+            $i++;
+        }else{
+            if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($client_id == $row['client_id']) && ($email == $row['username']) ){
+                $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
+                $datetime1 = strtotime($row['check_date']);
+                $datetime2 = strtotime($in);
+                
+                
+                
+                $interval = abs($datetime2 - $datetime1);
+                $minutes = round($interval / 60);
+                $hr = round($minutes/60);
+                $min = round($minutes%60);
+                $records[$i-1]['diff'] = date('H:i', mktime(0, $minutes));
+                //$records[$i-1]['diff'] = $hr.":".$min;
+            }
+            
+        }
+    }
+}
+		/*if (mysql_num_rows($result5) > 0) {
 			while ($row = mysql_fetch_assoc($result5)) {
-				//print_r($row);
-				/*$date1 =  date('Y-m-d');
-				$date2 =  date('Y-m-d',strtotime($row['check_date']));
-				echo  $date1 .'======>'.$date2 .'<br>';*/
 				if(date('Y-m-d')== date('Y-m-d',strtotime($row['check_date']))){
 				$records[$i]['name'] = $row['name'];
 						$records[$i]['employee_name'] = $row['employee_name'];
@@ -169,7 +244,7 @@
 							
 					  $i++; 
 						  }
-			  }}//die;
+			  }}*/
 			   } 
 			  
 			  
@@ -180,14 +255,14 @@
         FROM checks 
         LEFT JOIN customers ON checks.client_id = customers.id
         LEFT JOIN users ON checks.email = users.username 
-        WHERE client_id != 0 AND checks.check_status='out' AND checks.check_date >= '".date('Y-m-d')."' 
+        WHERE client_id != 0 AND checks.check_date >= '".date('Y-m-d')."' 
         GROUP BY username,checks.check_date
-        ORDER BY check_date DESC";
+        ORDER BY username DESC";
 		$result5 = mysql_query($sql5, $link);
 		$data = array();
 		$records = array();
 		$i=0;
-		if (mysql_num_rows($result5) > 0) {
+		/*if (mysql_num_rows($result5) > 0) {
 			while ($row = mysql_fetch_assoc($result5)) {
 		
 		
@@ -215,7 +290,7 @@
 								$records[$i]['diff'] = date('H:i', mktime(0, $minutes));
 					}
 				
-			$i++;}}}
+			$i++;}}}*/
 	   
 	   }
 	   
@@ -227,15 +302,55 @@
         FROM checks 
         LEFT JOIN customers ON checks.client_id = customers.id
         LEFT JOIN users ON checks.email = users.username 
-        WHERE client_id != 0 AND checks.check_status='in' AND checks.check_date between '".$startDate."' and '".$endDate."' 
+        WHERE client_id != 0 AND checks.check_date between '".$startDate."' and '".$endDate."' 
         GROUP BY username,checks.check_date
-        ORDER BY check_date DESC";
+        ORDER BY username DESC";
 		
 		$result5 = mysql_query($sql5, $link);
 		$data = array();
 		$records = array();
 		$i=0;
-		if (mysql_num_rows($result5) > 0) {
+                
+if (mysql_num_rows($result5) > 0) {
+    while ($row = mysql_fetch_assoc($result5)) {
+        
+        //echo "<pre>"; print_r($row); exit;
+        
+        if ($row['check_status'] == 'in') {
+            
+            $records[$i]['name'] = $row['name'];
+            $records[$i]['employee_name'] = $row['employee_name'];
+            $records[$i]['check_date'] = $row['check_date'];
+            $records[$i]['client_id'] = $row['client_id'];
+            $records[$i]['email'] = $row['username'];
+            //$mail_arr[] = $row['username'].'~'.date('Y-m-d', strtotime($row['check_date']));
+            
+            $records[$i]['in'] = date('H:i', strtotime($row['check_date']));
+            $in = $row['check_date'];
+            $email = $row['username'];
+            $client_id = $row['client_id'];
+            $i++;
+        }else{
+            if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($client_id == $row['client_id']) && ($email == $row['username']) ){
+                $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
+                $datetime1 = strtotime($row['check_date']);
+                $datetime2 = strtotime($in);
+                
+                
+                
+                $interval = abs($datetime2 - $datetime1);
+                $minutes = round($interval / 60);
+                $hr = round($minutes/60);
+                $min = round($minutes%60);
+                $records[$i-1]['diff'] = date('H:i', mktime(0, $minutes));
+                //$records[$i-1]['diff'] = $hr.":".$min;
+            }
+            
+        }
+    }
+}
+                
+		/*if (mysql_num_rows($result5) > 0) {
 			while ($row = mysql_fetch_assoc($result5)) {
 				
 				$records[$i]['name'] = $row['name'];
@@ -261,7 +376,7 @@
                 $records[$i]['diff'] = date('H:i', mktime(0, $minutes)); 
 			}
 		
-			$i++;}}
+			$i++;}}*/
 	   
 	   }
 	   else{
@@ -270,15 +385,54 @@ $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.ch
         FROM checks 
         LEFT JOIN customers ON checks.client_id = customers.id
         LEFT JOIN users ON checks.email = users.username 
-        WHERE client_id != 0 And checks.check_status='in'
+        WHERE client_id != 0
         GROUP BY username,check_date
-        ORDER BY check_date DESC";
+        ORDER BY username DESC";
 	//	echo $sql5;die;
 $result5 = mysql_query($sql5, $link);
 $data = array();
 $records = array();
 $i=0;
+
 if (mysql_num_rows($result5) > 0) {
+    while ($row = mysql_fetch_assoc($result5)) {
+        
+        //echo "<pre>"; print_r($row); exit;
+        
+        if ($row['check_status'] == 'in') {
+            
+            $records[$i]['name'] = $row['name'];
+            $records[$i]['employee_name'] = $row['employee_name'];
+            $records[$i]['check_date'] = $row['check_date'];
+            $records[$i]['client_id'] = $row['client_id'];
+            $records[$i]['email'] = $row['username'];
+            //$mail_arr[] = $row['username'].'~'.date('Y-m-d', strtotime($row['check_date']));
+            
+            $records[$i]['in'] = date('H:i', strtotime($row['check_date']));
+            $in = $row['check_date'];
+            $email = $row['username'];
+            $client_id = $row['client_id'];
+            $i++;
+        }else{
+            if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($client_id == $row['client_id']) && ($email == $row['username']) ){
+                $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
+                $datetime1 = strtotime($row['check_date']);
+                $datetime2 = strtotime($in);
+                
+                
+                
+                $interval = abs($datetime2 - $datetime1);
+                $minutes = round($interval / 60);
+                $hr = round($minutes/60);
+                $min = round($minutes%60);
+                $records[$i-1]['diff'] = date('H:i', mktime(0, $minutes));
+                //$records[$i-1]['diff'] = $hr.":".$min;
+            }
+            
+        }
+    }
+}
+/*if (mysql_num_rows($result5) > 0) {
     while ($row = mysql_fetch_assoc($result5)) {
 		 $records[$i]['name'] = $row['name'];
             $records[$i]['employee_name'] = $row['employee_name'];
@@ -306,7 +460,7 @@ if (mysql_num_rows($result5) > 0) {
 				
 				$i++;}
 
-	   }
+	   }*/
 		
 	   }
 
@@ -390,10 +544,16 @@ tfoot input {
               <table id="datatable-buttons" class="display table table-striped table-bordered" cellspacing="0" width="100%">
                 <thead>
                   <tr>
-                    <th style="display:none;">Se No.</th>
+                    <th style="display:none;">Sr No.</th>
                     <th>Employee Name</th>
                     <th>Customer</th>
-                    <th>Date</th>
+                    <th class="sorting_desc" 
+                        tabindex="0" 
+                        aria-controls="datatable-buttons" 
+                        rowspan="1" 
+                        colspan="1" 
+                        aria-label="Date: activate to sort column ascending" 
+                        aria-sort="descending">Date</th>
                     <th>In Time</th>
                     <th>Out Time</th>
                     <th>Total Time Spent</th>
