@@ -108,7 +108,7 @@ if (mysql_num_rows($result5) > 0) {
             $records[$i]['client_id'] = $row['client_id'];
             $records[$i]['email'] = $row['username'];
             //$mail_arr[] = $row['username'].'~'.date('Y-m-d', strtotime($row['check_date']));
-            
+            $records[$i]['check_id'] = $row['check_id'];
             $records[$i]['in'] = date('H:i', strtotime($row['check_date']));
             $in = $row['check_date'];
             $email = $row['username'];
@@ -120,7 +120,7 @@ if (mysql_num_rows($result5) > 0) {
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
                 
-                
+                 $records[$i]['check_id_out'] = $CheckOut['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -194,7 +194,7 @@ if (mysql_num_rows($result5) > 0) {
             $records[$i]['client_id'] = $row['client_id'];
             $records[$i]['email'] = $row['username'];
             //$mail_arr[] = $row['username'].'~'.date('Y-m-d', strtotime($row['check_date']));
-            
+            $records[$i]['check_id'] = $row['check_id'];
             $records[$i]['in'] = date('H:i', strtotime($row['check_date']));
             $in = $row['check_date'];
             $email = $row['username'];
@@ -206,7 +206,7 @@ if (mysql_num_rows($result5) > 0) {
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
                 
-                
+                 $records[$i]['check_id_out'] = $CheckOut['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -324,7 +324,7 @@ if (mysql_num_rows($result5) > 0) {
             $records[$i]['client_id'] = $row['client_id'];
             $records[$i]['email'] = $row['username'];
             //$mail_arr[] = $row['username'].'~'.date('Y-m-d', strtotime($row['check_date']));
-            
+            $records[$i]['check_id'] = $row['check_id'];
             $records[$i]['in'] = date('H:i', strtotime($row['check_date']));
             $in = $row['check_date'];
             $email = $row['username'];
@@ -336,7 +336,7 @@ if (mysql_num_rows($result5) > 0) {
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
                 
-                
+                $records[$i]['check_id_out'] = $CheckOut['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -407,7 +407,7 @@ if (mysql_num_rows($result5) > 0) {
             $records[$i]['client_id'] = $row['client_id'];
             $records[$i]['email'] = $row['username'];
             //$mail_arr[] = $row['username'].'~'.date('Y-m-d', strtotime($row['check_date']));
-            
+            $records[$i]['check_id'] = $row['check_id'];
             $records[$i]['in'] = date('H:i', strtotime($row['check_date']));
             $in = $row['check_date'];
             $email = $row['username'];
@@ -419,7 +419,7 @@ if (mysql_num_rows($result5) > 0) {
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
                 
-                
+                $records[$i]['check_id_out'] = $CheckOut['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
