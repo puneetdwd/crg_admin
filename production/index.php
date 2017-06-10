@@ -72,13 +72,31 @@ include "check_session.php"; ?>
 			<script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
            <script type="text/javascript">
             $(function () {
-                $('.timePicker').datetimepicker( { format: 'YYYY-MM-DD hh:mm'});
+                $('.timePicker').datetimepicker( { format: 'YYYY-MM-DD HH:mm' 
+				});
             }); 
 			
 			 $(function () {
                 $('.DatePicker').datetimepicker( { format: 'YYYY-MM-DD'});
             });
-                 $(document).ready(function() {
+        
+          $(document).ready(function() {
 $('#ActionRemove').hide();
+$('#SerialNo').hide();
+$('.FindDataTab').click(function(){
+	var TabVal = this.id;
+	 $.ajax({
+	   url: "ajax.php",
+       type: "POST",
+       data: {DataVal : TabVal},
+       dataType: "html",
+		 success: function(result){
+        $("#ReplaceData").html(result);
+    }});
+	
+	
+	
+	})
+	
+
 } );</script>
-          
