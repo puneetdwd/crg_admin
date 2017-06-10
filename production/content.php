@@ -6,7 +6,7 @@
     }
     @mysql_select_db('crgv2', $link) or die( "Unable to select database");
 
-	if(isset($_REQUEST['Update']) && $_REQUEST['Update']=='Update'){
+		if(isset($_REQUEST['Update']) && $_REQUEST['Update']=='Update'){
 		//print_r($_REQUEST);die;
 		 if(isset($_REQUEST['check_in_id']) && !empty($_REQUEST['check_in_id'])){
 		$Query = "UPDATE `checks` SET `check_date`='".$_REQUEST['check_in_value']."' WHERE check_id='".$_REQUEST['check_in_id']."'";
@@ -119,8 +119,8 @@ if (mysql_num_rows($result5) > 0) {
                 $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
-                
-                 $records[$i]['check_id_out'] = $CheckOut['check_id'];
+                 $records[$i]['out_time'] = $row['check_date'];
+                 $records[$i]['check_id_out'] = $row['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -205,8 +205,8 @@ if (mysql_num_rows($result5) > 0) {
                 $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
-                
-                 $records[$i]['check_id_out'] = $CheckOut['check_id'];
+                 $records[$i]['out_time'] = $row['check_date'];
+                 $records[$i]['check_id_out'] = $row['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -335,8 +335,8 @@ if (mysql_num_rows($result5) > 0) {
                 $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
-                
-                $records[$i]['check_id_out'] = $CheckOut['check_id'];
+                 $records[$i]['out_time'] = $row['check_date'];
+                $records[$i]['check_id_out'] = $row['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -416,10 +416,14 @@ if (mysql_num_rows($result5) > 0) {
         }else{
             if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($client_id == $row['client_id']) && ($email == $row['username']) ){
                 $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
-                $datetime1 = strtotime($row['check_date']);
+				
+				
+                $records[$i-1]['out_time'] = $row['check_date'];
+                
+				$datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
                 
-                $records[$i]['check_id_out'] = $CheckOut['check_id'];
+                $records[$i]['check_id_out'] = $row['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -576,9 +580,10 @@ tfoot input {
                   <?php 
 								
 								//echo "<pre>";
-								//print_r($records);exit;
+						//print_r($records);exit;
 								$j=1;
 								for ($i=0; $i < sizeof($records); $i++) { 
+								if(!empty($records[$i]['employee_name'])){
 								?>
                   <tr  <?php if(isset($records[$i]['diff']) && !empty($records[$i]['diff']) && $records[$i]['diff']<8){?>style="background-color: #D91E18;
 color: white;" <?php } ?>>
@@ -660,7 +665,7 @@ color: white;" <?php } ?>>
                           <div class="form-group">
                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Time In </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                              <input type="text"  required="required" name="check_in_value" value="" class="form-control timePicker ">
+                              <input type="text"  required="required" name="check_in_value" value="<?php echo $records[$i]['check_date'];?>" class="form-control timePicker ">
                               <input type="hidden" name="check_in_id" value="<?php echo $records[$i]['check_id'];?>" />
                             </div>
                           </div>
@@ -668,7 +673,7 @@ color: white;" <?php } ?>>
                           <div class="form-group" style="padding-top:10px;" >
                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Time Out </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                              <input type="text"  required="required" name="check_out_value" value="" class="form-control timePicker ">
+                              <input type="text"  required="required" name="check_out_value" value="<?php echo $records[$i]['out_time'];?>" class="form-control timePicker ">
                               <input type="hidden" name="check_out_id" value="<?php echo $records[$i]['check_id_out'];?>" />
                               <input type="hidden" name="client_id" value="<?php echo $records[$i]['client_id'];?>" />
                               <input type="hidden" name="email" value="<?php echo $records[$i]['email'];?>" />
@@ -688,7 +693,7 @@ color: white;" <?php } ?>>
                     </div>
                   </div>
                 </div>
-                <?php $j++;}  ?>
+                <?php $j++;} } ?>
                   </tbody>
                 
               </table>
