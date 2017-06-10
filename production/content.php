@@ -13,9 +13,11 @@
 	   $result4 = mysql_query($Query, $link);
 		 }
 	   if(isset($_REQUEST['check_out_id']) && !empty($_REQUEST['check_out_id'])){
+		  //echo "aaaa";die;
 	   $Query1 = "UPDATE `checks` SET `check_date`='".$_REQUEST['check_out_value']."' WHERE check_id='".$_REQUEST['check_out_id']."'";
 	   $result12 = mysql_query($Query1, $link);
 	   }else{
+	//	   echo "bbb";die;
 		    $Query1 = "INSERT INTO `checks` SET `check_date`='".$_REQUEST['check_out_value']."' ,`client_id`='".$_REQUEST['client_id']."',`email`='".$_REQUEST['email']."',`check_status`='out'";
 	   $result12 = mysql_query($Query1, $link);
 		   
@@ -119,8 +121,8 @@ if (mysql_num_rows($result5) > 0) {
                 $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
-                 $records[$i]['out_time'] = $row['check_date'];
-                 $records[$i]['check_id_out'] = $row['check_id'];
+                 $records[$i-1]['out_time'] = $row['check_date'];
+                 $records[$i-1]['check_id_out'] = $row['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -205,8 +207,8 @@ if (mysql_num_rows($result5) > 0) {
                 $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
-                 $records[$i]['out_time'] = $row['check_date'];
-                 $records[$i]['check_id_out'] = $row['check_id'];
+                 $records[$i-1]['out_time'] = $row['check_date'];
+                 $records[$i-1]['check_id_out'] = $row['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -335,8 +337,8 @@ if (mysql_num_rows($result5) > 0) {
                 $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
                 $datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
-                 $records[$i]['out_time'] = $row['check_date'];
-                $records[$i]['check_id_out'] = $row['check_id'];
+                 $records[$i-1]['out_time'] = $row['check_date'];
+                $records[$i-1]['check_id_out'] = $row['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -387,7 +389,7 @@ $sql5 = "Select name,client_id,username,check_date,checks.check_status,checks.ch
         LEFT JOIN users ON checks.email = users.username 
         WHERE client_id != 0
         GROUP BY username,check_date
-        ORDER BY username DESC";
+        ORDER BY users.username DESC";
 	//	echo $sql5;die;
 $result5 = mysql_query($sql5, $link);
 $data = array();
@@ -417,13 +419,12 @@ if (mysql_num_rows($result5) > 0) {
             if((date('Y-m-d', strtotime($row['check_date'])) == date('Y-m-d', strtotime($in)) ) && ($client_id == $row['client_id']) && ($email == $row['username']) ){
                 $records[$i-1]['out'] = date('H:i', strtotime($row['check_date']));
 				
-				
+				$records[$i-1]['check_id_out'] = $row['check_id'];
                 $records[$i-1]['out_time'] = $row['check_date'];
                 
 				$datetime1 = strtotime($row['check_date']);
                 $datetime2 = strtotime($in);
                 
-                $records[$i]['check_id_out'] = $row['check_id'];
                 
                 $interval = abs($datetime2 - $datetime1);
                 $minutes = round($interval / 60);
@@ -661,7 +662,7 @@ color: white;" <?php } ?>>
                         <h4 class="modal-title">Update Check-In</h4>
                       </div>
                       <div class="modal-body">
-                        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="post">
+                        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left"  action="<?php echo $_SERVER["PHP_SELF"];?>" method="post">
                           <div class="form-group">
                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Time In </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
